@@ -55,14 +55,9 @@ class PyLightLine(object):
     def __getattr__(self, name):
         return None
 
-try:
-    import gcoder_line
-    Line = gcoder_line.GLine
-    LightLine = gcoder_line.GLightLine
-except Exception, e:
-    logging.warning("Memory-efficient GCoder implementation unavailable: %s" % e)
-    Line = PyLine
-    LightLine = PyLightLine
+
+Line = PyLine
+LightLine = PyLightLine
 
 def find_specific_code(line, code):
     exp = specific_exp % code
@@ -681,28 +676,3 @@ class GCode(object):
 
 class LightGCode(GCode):
     line_class = LightLine
-
-'''
-def main():
-    if len(sys.argv) < 2:
-        print "usage: %s filename.gcode" % sys.argv[0]
-        return
-
-    print "Line object size:", sys.getsizeof(Line("G0 X0"))
-    print "Light line object size:", sys.getsizeof(LightLine("G0 X0"))
-    gcode = GCode(open(sys.argv[1], "rU"))
-
-    print "Dimensions:"
-    xdims = (gcode.xmin, gcode.xmax, gcode.width)
-    print "\tX: %0.02f - %0.02f (%0.02f)" % xdims
-    ydims = (gcode.ymin, gcode.ymax, gcode.depth)
-    print "\tY: %0.02f - %0.02f (%0.02f)" % ydims
-    zdims = (gcode.zmin, gcode.zmax, gcode.height)
-    print "\tZ: %0.02f - %0.02f (%0.02f)" % zdims
-    print "Filament used: %0.02fmm" % gcode.filament_length
-    print "Number of layers: %d" % gcode.layers_count
-    print "Estimated duration: %s" % gcode.estimate_duration()[1]
-
-if __name__ == '__main__':
-    main()
-'''

@@ -1,14 +1,13 @@
 import wx
 import wx.grid as gridlib
 
-__author__ = 'darkzena'
+__author__ = 'dz'
 
 import wx, sys, os
-
-from Lib import GCode
+from GCode import GCode
 
 '''
-
+Gcode info
 '''
 
 class Frame(wx.Frame):
@@ -17,20 +16,12 @@ class Frame(wx.Frame):
         self.Center()
         self.panel = wx.Panel(self)
 
-        # Get the file
-        if not fileGCode:
-            wildcard = "All (*.*)|*.*"
-            dlg = wx.FileDialog(self, "Select GCode file", "", "", wildcard, wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
-            if dlg.ShowModal() == wx.ID_CANCEL:
-                return     # the user changed idea...
-            fileGCode = dlg.GetPath()
-
         # Get info GCode
         gcode = GCode(open(fileGCode, "rU"))
 
-        xdims = (gcode.xmin, gcode.xmax, gcode.width)
-        ydims = (gcode.ymin, gcode.ymax, gcode.depth)
-        zdims = (gcode.zmin, gcode.zmax, gcode.height)
+        xdims = gcode.width
+        ydims = gcode.depth
+        zdims = gcode.height
         self.filamenUse = gcode.filament_length
         layersN =  gcode.layers_count
         estimateTime =  gcode.estimate_duration()[1]
@@ -39,13 +30,13 @@ class Frame(wx.Frame):
         self.gcodeFileName = wx.StaticText(self.panel, label="FileName:")
         self.gcodeFileNameV = wx.StaticText(self.panel, label=fileGCode)
         self.gcodeX = wx.StaticText(self.panel, label="Dimension X:")
-        self.gcodeXV =wx.StaticText(self.panel, label= ("Min %0.02f - Max %0.02f (%0.02f)" % xdims))
+        self.gcodeXV =wx.StaticText(self.panel, label= ("%0.02f" % xdims))
         self.gcodeY = wx.StaticText(self.panel, label="Dimension Y:")
-        self.gcodeYV =wx.StaticText(self.panel, label= ("Min %0.02f - Max %0.02f (%0.02f)" % ydims))
+        self.gcodeYV =wx.StaticText(self.panel, label= ("%0.02f" % ydims))
         self.gcodeZ = wx.StaticText(self.panel, label="Dimension Z:")
-        self.gcodeZV =wx.StaticText(self.panel, label= ("Min %0.02f - Max %0.02f (%0.02f)" % zdims))
-        self.gcodeFilUse = wx.StaticText(self.panel, label="Filament used:")
-        self.gcodeFilUseV = wx.StaticText(self.panel, label=("%0.02f mm - %0.02f cm" % (self.filamenUse, self.filamenUse/100)))
+        self.gcodeZV =wx.StaticText(self.panel, label= ("%0.02f" % zdims))
+        self.gcodeFilUse = wx.StaticText(self.panel, label="Filament used (cm):")
+        self.gcodeFilUseV = wx.StaticText(self.panel, label=("%0.02f" % (self.filamenUse/100)))
         self.gcodeLayers = wx.StaticText(self.panel, label="Number of layers:")
         self.gcodeLayersV = wx.StaticText(self.panel, label=(" %d" % layersN))
         self.gcodeTime = wx.StaticText(self.panel, label="Estimate Time")
@@ -134,11 +125,9 @@ class Frame(wx.Frame):
 
 # Main app
 app = wx.App()
-
 if len(sys.argv) > 1:
-    top = Frame("GCode info", open(sys.argv[1]))
+    top = Frame("GCode info", sys.argv[1])
+    top.Show()
+    app.MainLoop()
 else:
-    top = Frame("GCode info")
-
-top.Show()
-app.MainLoop()
+    print("use: %s [file.gcode]" % sys.argv[0])
